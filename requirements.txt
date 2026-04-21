@@ -1,4 +1,5 @@
-pyTelegramBotAPI==4.16.1
-yt-dlp
-flask
-ffmpeg-python
+pyTelegramBotAPI==4.26.0
+yt-dlp==2025.03.31
+Flask==3.1.0
+gunicorn==23.0.0
+requests==2.32.3

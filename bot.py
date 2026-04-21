@@ -11,13 +11,8 @@ BOT_TOKEN = "8089616190:AAF14HoE5yA_tm2RByJ6bLe_KOqJHBJb8mo"
 bot = telebot.TeleBot(BOT_TOKEN)
 
 # ================= LINKS =================
-youtube_link = base64.b64decode(
-    "aHR0cHM6Ly95b3V0dWJlLmNvbS9Aenlyb3hfY2hlYXQ="
-).decode()
-
-support_link = base64.b64decode(
-    "aHR0cHM6Ly90Lm1lL1NBS0lCX0JIQUlJ"
-).decode()
+youtube_link = base64.b64decode("aHR0cHM6Ly95b3V0dWJlLmNvbS9Aenlyb3hfY2hlYXQ=").decode()
+support_link = base64.b64decode("aHR0cHM6Ly90Lm1lL1NBS0lCX0JIQUlJ").decode()
 
 # ================= FLASK KEEP ALIVE =================
 app = Flask('')
@@ -61,11 +56,11 @@ def start(message):
 
     bot.send_message(
         message.chat.id,
-        "🔥 VIDEO DOWNLOADER BOT\n\nSend any YouTube / Facebook / Instagram link 🎬",
+        "🔥 MULTI VIDEO DOWNLOADER BOT\n\nYouTube / Facebook / Instagram / TikTok 🎬",
         reply_markup=kb
     )
 
-# ================= DOWNLOAD CORE =================
+# ================= DOWNLOAD ENGINE =================
 def download_video(url, chat_id, msg_id, ydl_opts):
 
     last_text = ""
@@ -89,7 +84,7 @@ def download_video(url, chat_id, msg_id, ydl_opts):
 
                 text = f"""⬇️ Downloading...
 {bar}
-⚡ Speed: {speed}
+⚡ {speed}
 ⏳ ETA: {eta}"""
 
                 if text != last_text:
@@ -109,14 +104,38 @@ def download_video(url, chat_id, msg_id, ydl_opts):
 
     ydl_opts['progress_hooks'] = [hook]
 
-    # 🔥 FIX YouTube extraction issue
-    ydl_opts['extractor_args'] = {
-        'youtube': {
-            'player_client': ['android', 'web']
-        }
+    # ================= FIX FOR ALL PLATFORMS =================
+    ydl_opts['noplaylist'] = True
+    ydl_opts['quiet'] = True
+    ydl_opts['retries'] = 10
+    ydl_opts['fragment_retries'] = 10
+
+    # ================= COOKIES ADDED HERE =================
+    # cookies.txt file তোমার repo root-এ রাখো
+    if os.path.exists('cookies.txt'):
+        ydl_opts['cookies'] = 'cookies.txt'
+
+    ydl_opts['http_headers'] = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+        'Accept-Language': 'en-US,en;q=0.5',
+        'Accept-Encoding': 'gzip, deflate, br',
+        'DNT': '1',
+        'Connection': 'keep-alive',
     }
 
-    ydl_opts['noplaylist'] = True
+    ydl_opts['extractor_args'] = {
+        'youtube': {
+            'player_client': ['web'],
+            'player_skip': ['webpage', 'configs', 'js']
+        },
+        'tiktok': {
+            'api': 'web'
+        },
+        'facebook': {
+            'api': 'web'
+        }
+    }
 
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         info = ydl.extract_info(url, download=True)
@@ -149,39 +168,35 @@ def callback(call):
 
     try:
 
+        # ================= OPTIONS =================
         if choice == "720":
             ydl_opts = {
-                'format': 'bestvideo[height<=720]+bestaudio/best',
+                'format': 'bestvideo[height<=720]+bestaudio/best[height<=720]/best',
                 'merge_output_format': 'mp4',
-                'outtmpl': '%(id)s.%(ext)s',
-                'quiet': True,
-                'retries': 10,
-                'fragment_retries': 10
+                'outtmpl': '%(id)s.%(ext)s'
             }
 
         elif choice == "360":
             ydl_opts = {
-                'format': 'bestvideo[height<=360]+bestaudio/best',
+                'format': 'best[height<=360]/worst',
                 'merge_output_format': 'mp4',
-                'outtmpl': '%(id)s.%(ext)s',
-                'quiet': True,
-                'retries': 10,
-                'fragment_retries': 10
+                'outtmpl': '%(id)s.%(ext)s'
             }
 
         elif choice == "mp3":
             ydl_opts = {
-                'format': 'bestaudio',
+                'format': 'bestaudio/best',
                 'outtmpl': '%(id)s.%(ext)s',
-                'quiet': True,
                 'postprocessors': [{
                     'key': 'FFmpegExtractAudio',
                     'preferredcodec': 'mp3',
                 }]
             }
 
+        # ================= DOWNLOAD =================
         file_name = download_video(url, chat_id, msg.message_id, ydl_opts)
 
+        # ================= SEND =================
         if choice == "mp3":
             audio = file_name.rsplit(".", 1)[0] + ".mp3"
             with open(audio, "rb") as f:

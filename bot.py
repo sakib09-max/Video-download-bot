@@ -61,11 +61,11 @@ def start(message):
 
     bot.send_message(
         message.chat.id,
-        "🔥 MULTI VIDEO DOWNLOADER BOT\n\nYouTube / Facebook / Instagram / TikTok 🎬",
+        "🔥 VIDEO DOWNLOADER BOT\n\nSend any YouTube / Facebook / Instagram link 🎬",
         reply_markup=kb
     )
 
-# ================= DOWNLOAD ENGINE =================
+# ================= DOWNLOAD CORE =================
 def download_video(url, chat_id, msg_id, ydl_opts):
 
     last_text = ""
@@ -89,7 +89,7 @@ def download_video(url, chat_id, msg_id, ydl_opts):
 
                 text = f"""⬇️ Downloading...
 {bar}
-⚡ {speed}
+⚡ Speed: {speed}
 ⏳ ETA: {eta}"""
 
                 if text != last_text:
@@ -109,27 +109,14 @@ def download_video(url, chat_id, msg_id, ydl_opts):
 
     ydl_opts['progress_hooks'] = [hook]
 
-    # ================= FIX FOR ALL PLATFORMS =================
-    ydl_opts['noplaylist'] = True
-    ydl_opts['quiet'] = True
-    ydl_opts['retries'] = 10
-    ydl_opts['fragment_retries'] = 10
-
-    ydl_opts['http_headers'] = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Android 11) Chrome/120 Safari/537.36'
-    }
-
+    # 🔥 FIX YouTube extraction issue
     ydl_opts['extractor_args'] = {
         'youtube': {
             'player_client': ['android', 'web']
-        },
-        'tiktok': {
-            'api': 'web'
-        },
-        'facebook': {
-            'api': 'web'
         }
     }
+
+    ydl_opts['noplaylist'] = True
 
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         info = ydl.extract_info(url, download=True)
@@ -162,35 +149,39 @@ def callback(call):
 
     try:
 
-        # ================= OPTIONS =================
         if choice == "720":
             ydl_opts = {
-                'format': 'bestvideo[height<=720]+bestaudio/best/best',
+                'format': 'bestvideo[height<=720]+bestaudio/best',
                 'merge_output_format': 'mp4',
-                'outtmpl': '%(id)s.%(ext)s'
+                'outtmpl': '%(id)s.%(ext)s',
+                'quiet': True,
+                'retries': 10,
+                'fragment_retries': 10
             }
 
         elif choice == "360":
             ydl_opts = {
-                'format': 'best[height<=360]/best',
+                'format': 'bestvideo[height<=360]+bestaudio/best',
                 'merge_output_format': 'mp4',
-                'outtmpl': '%(id)s.%(ext)s'
+                'outtmpl': '%(id)s.%(ext)s',
+                'quiet': True,
+                'retries': 10,
+                'fragment_retries': 10
             }
 
         elif choice == "mp3":
             ydl_opts = {
                 'format': 'bestaudio',
                 'outtmpl': '%(id)s.%(ext)s',
+                'quiet': True,
                 'postprocessors': [{
                     'key': 'FFmpegExtractAudio',
                     'preferredcodec': 'mp3',
                 }]
             }
 
-        # ================= DOWNLOAD =================
         file_name = download_video(url, chat_id, msg.message_id, ydl_opts)
 
-        # ================= SEND =================
         if choice == "mp3":
             audio = file_name.rsplit(".", 1)[0] + ".mp3"
             with open(audio, "rb") as f:

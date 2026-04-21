@@ -1,7 +1,0 @@
-import os
-
-cookies_content = os.getenv('YT_COOKIES')
-if cookies_content:
-    with open('cookies.txt', 'w') as f:
-        f.write(cookies_content)
-ydl_opts['cookies'] = 'cookies.txt'

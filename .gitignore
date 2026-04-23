@@ -1,38 +1,44 @@
-# Environment variables (NEVER commit this!)
-.env
-
-# Python cache
+# Python
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
 .Python
-
-# Downloaded videos (auto-cleaned but just in case)
-downloads/
-*.mp4
-*.webm
-*.mkv
-*.avi
-*.mov
-
-# Virtual environments
-venv/
 env/
+venv/
 ENV/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
 
-# IDE files
+# Environment variables
+.env
+
+# IDE
 .vscode/
 .idea/
 *.swp
 *.swo
 
-# OS files
+# OS
 .DS_Store
 Thumbs.db
 
-# Logs
-*.log
-
-# Render/Deployment
-.render/
+# Bot downloads (will be created at runtime)
+downloads/*.mp4
+downloads/*.webm
+downloads/*.mkv
+downloads/*.part
+downloads/*.ytdl

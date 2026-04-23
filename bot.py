@@ -11,7 +11,7 @@ import re
 
 # ===================== CONFIGURATION =====================
 # Replace with your actual bot token from @BotFather
-BOT_TOKEN = "8089616190:AAF14HoE5yA_tm2RByJ6bLe_KOqJHBJb8mo"
+BOT_TOKEN = "8089616190:AAFupMLLkNaV61-t7cNne7D2jNiz6UIJAYE"
 
 # Decode secured links
 YOUTUBE_LINK = base64.b64decode("aHR0cHM6Ly95b3V0dWJlLmNvbS9AYmxhY2trbm93bGVkZ2VfMTkwP3NpPTlFd2tNUEdiLWxIUnpaZHE=").decode('utf-8')

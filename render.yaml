@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: video-downloader-bot
+    env: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: python bot.py
+    envVars:
+      - key: 8089616190:AAF14HoE5yA_tm2RByJ6bLe_KOqJHBJb8mo
+        sync: false
+      - key: PYTHON_VERSION
+        value: 3.11.0
+    healthCheckPath: /health
+    autoDeploy: true
